@@ -1,10 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('hammerjs')) :
-  typeof define === 'function' && define.amd ? define(['hammerjs'], factory) :
-  (factory(global.Hammer));
-}(this, (function (Hammer) { 'use strict';
-
-Hammer = 'default' in Hammer ? Hammer['default'] : Hammer;
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (factory());
+}(this, (function () { 'use strict';
 
 function assign(target) {
   var sources = [], len = arguments.length - 1;
@@ -29,7 +27,7 @@ function capitalize (str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 var directions = ['up', 'down', 'left', 'right', 'horizontal', 'vertical', 'all'];
-function guardDirections (options) {
+function guardDirections (options, Hammer) {
   var dir = options.direction;
   if (typeof dir === 'string') {
     var hammerDirection = 'DIRECTION_' + dir.toUpperCase();
@@ -85,6 +83,7 @@ var gestureMap = {
   tap: 'tap'
 };
 
+var Hammer;
 var Component = {
   props: {
     options: createProp(),
@@ -102,6 +101,7 @@ var Component = {
   },
   mounted: function mounted() {
     if (!this.$isServer) {
+      Hammer = Hammer || require('hammerjs');
       this.hammer = new Hammer.Manager(this.$el, this.options);
       this.recognizers = {};
       this.setupBuiltinRecognizers();
@@ -155,8 +155,9 @@ var Component = {
     addRecognizer: function addRecognizer(gesture, options, ref) {
       if ( ref === void 0 ) ref = {};
       var mainGesture = ref.mainGesture;
-      if (!this.recognizers[gesture]) {
-        var recognizer = new Hammer[capitalize(mainGesture || gesture)](guardDirections(options));
+      if (this.hammer && !this.recognizers[gesture]) {
+        Hammer = Hammer || require('hammerjs');
+        var recognizer = new Hammer[capitalize(mainGesture || gesture)](guardDirections(options, Hammer));
         this.recognizers[gesture] = recognizer;
         this.hammer.add(recognizer);
         recognizer.recognizeWith(this.hammer.recognizers);

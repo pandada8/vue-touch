@@ -1,4 +1,4 @@
-import Hammer from 'hammerjs'
+let Hammer
 
 import {
   createProp,
@@ -31,6 +31,7 @@ export default {
 
   mounted() {
     if (!this.$isServer) {
+      Hammer = Hammer || require('hammerjs')
       this.hammer = new Hammer.Manager(this.$el, this.options)
       this.recognizers = {} // not reactive
       this.setupBuiltinRecognizers()
@@ -104,8 +105,9 @@ export default {
      */
     addRecognizer: function addRecognizer(gesture, options, { mainGesture } = {}) {
       // create recognizer, e.g. new Hammer['Swipe'](options)
-      if (!this.recognizers[gesture]) {
-        const recognizer = new Hammer[capitalize(mainGesture || gesture)](guardDirections(options))
+      if (this.hammer && !this.recognizers[gesture]) {
+        Hammer = Hammer || require('hammerjs')
+        const recognizer = new Hammer[capitalize(mainGesture || gesture)](guardDirections(options, Hammer))
         this.recognizers[gesture] = recognizer
         this.hammer.add(recognizer)
         recognizer.recognizeWith(this.hammer.recognizers)

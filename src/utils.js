@@ -1,5 +1,3 @@
-import Hammer from 'hammerjs' // used by guardDirections
-
 /**
  * Tiny Object.assign replacement
  * @param  {Object} target  Any type of object
@@ -46,7 +44,7 @@ export const directions = ['up', 'down', 'left', 'right', 'horizontal', 'vertica
  * @param  {Objects} options Hammer Options
  * @return {Object}         [Hammer Options]
  */
-export function guardDirections (options) {
+export function guardDirections (options, Hammer) {
   var dir = options.direction
   if (typeof dir === 'string') {
     var hammerDirection = 'DIRECTION_' + dir.toUpperCase()
